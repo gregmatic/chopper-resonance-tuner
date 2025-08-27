@@ -58,6 +58,28 @@ def calc_magnitude(file, static_data):
     md_magnitude = np.median(np.linalg.norm(data, axis=1))
     return md_magnitude
 
+def calc_raw_magnitude(file): #new
+    data = np.array([
+        [float(row["accel_x"]),
+         float(row["accel_y"]),
+         float(row["accel_z"])] for row in csv.DictReader(file)])
+    trim_size = len(data) // CUTOFF_RANGE
+    data = data[trim_size:-trim_size]
+    md_magnitude = np.median(np.linalg.norm(data, axis=1))
+    return md_magnitude
+
+def calc_avg_magnitude(file, static_data=None): #new
+    data = np.array([
+        [float(row["accel_x"]),
+         float(row["accel_y"]),
+         float(row["accel_z"])] for row in csv.DictReader(file)])
+    if static_data is not None:
+        data = data - static_data
+    trim_size = len(data) // CUTOFF_RANGE
+    data = data[trim_size:-trim_size]
+    avg_magnitude = np.mean(np.linalg.norm(data, axis=1))
+    return avg_magnitude
+
 def main():
     print('Magnitude graphs generation...')
     args = parse_arguments()
@@ -70,9 +92,15 @@ def main():
     with open(f'{DATA_FOLDER}{static_name}', 'r') as file:
         static_data = calc_static_magnitude(file)
         accel_chip = static_name.split('-')[0]
-    # Calc magnitudes on registers
-    samples = {}
-    datapoint = []
+    # Calc magnitudes (median and average, static and raw)
+    samples_median_static = {}
+    samples_median_raw = {}
+    samples_avg_static = {}
+    samples_avg_raw = {}
+    datapoint_median_static = []
+    datapoint_median_raw = []
+    datapoint_avg_static = []
+    datapoint_avg_raw = []
     empty_error = 0
     data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.
                         path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=True)
@@ -83,30 +111,60 @@ def main():
                 out_name = (f'current={curr}_tbl={tbl}_toff={toff}_hstrt={hstrt}_hend={hend}'
                             f'_tpfd={tpfd}_speed={float(speed)/100:.2f}_freq={float(freq)/1000:.2f}kHz')
                 try:
-                    md_magnitude = calc_magnitude(file, static_data)
-                    datapoint.append(md_magnitude)
+                    # Calculate all four magnitudes
+                    md_magnitude_static = calc_magnitude(file, static_data)
+                    md_magnitude_raw = calc_raw_magnitude(file)
+                    avg_magnitude_static = calc_avg_magnitude(file, static_data)
+                    avg_magnitude_raw = calc_avg_magnitude(file)
+                    datapoint_median_static.append(md_magnitude_static)
+                    datapoint_median_raw.append(md_magnitude_raw)
+                    datapoint_avg_static.append(avg_magnitude_static)
+                    datapoint_avg_raw.append(avg_magnitude_raw)
                     if int(iter) == iterations:
-                        samples[out_name] = np.mean(datapoint, axis=0)
-                        datapoint.clear()
+                        samples_median_static[out_name] = np.mean(datapoint_median_static, axis=0)
+                        samples_median_raw[out_name] = np.mean(datapoint_median_raw, axis=0)
+                        samples_avg_static[out_name] = np.mean(datapoint_avg_static, axis=0)
+                        samples_avg_raw[out_name] = np.mean(datapoint_avg_raw, axis=0)
+                        datapoint_median_static.clear()
+                        datapoint_median_raw.clear()
+                        datapoint_avg_static.clear()
+                        datapoint_avg_raw.clear()
                 except:
-                    datapoint.clear()
+                    datapoint_median_static.clear()
+                    datapoint_median_raw.clear()
+                    datapoint_avg_static.clear()
+                    datapoint_avg_raw.clear()
                     empty_error += 1
-                    samples[out_name] = 0
+                    samples_median_static[out_name] = 0
+                    samples_median_raw[out_name] = 0
+                    samples_avg_static[out_name] = 0
+                    samples_avg_raw[out_name] = 0
 
     # Graphs generation
     colors = ['', '#2F4F4F', '#12B57F', '#9DB512', '#DF8816', '#1297B5', '#5912B5', '#B51284', '#127D0C']
-    params = [reversed(list(samples.items())), sorted(samples.items(), key=lambda x: x[1])]
-    names = ['', 'sorted_']
-    for param, name in zip(params, names):
-        fig = go.Figure()
-        for entry in param:
-            toff = int(entry[0].split('_')[2].split('=')[1])
-            color = colors[toff if toff <= 8 else toff - 8]
-            fig.add_trace(go.Bar(x=[entry[1]], y=[entry[0]], marker_color=color, orientation='h', showlegend=False))
-        fig.update_layout(title='Median Magnitude vs Parameters', xaxis_title='Median Magnitude',
-                          yaxis_title='Parameters', coloraxis_showscale=True)
-        plot_html_path = os.path.join(RESULTS_FOLDER, f'{name}interactive_plot_{accel_chip}_tmc{driver}_{sense_resistor}_{now}.html')
-        pio.write_html(fig, plot_html_path, auto_open=False)
+    plot_configs = [
+        (samples_median_static, 'median_static_', 'Median Magnitude vs Parameters (Static Subtracted)'),
+        (samples_median_raw, 'median_raw_', 'Median Magnitude vs Parameters (Raw Data)'),
+        (samples_avg_static, 'avg_static_', 'Average Magnitude vs Parameters (Static Subtracted)'),
+        (samples_avg_raw, 'avg_raw_', 'Average Magnitude vs Parameters (Raw Data)')
+    ]
+    plot_paths = []
+    
+    for samples, name_prefix, title in plot_configs:
+        params = [reversed(list(samples.items())), sorted(samples.items(), key=lambda x: x[1])]
+        names = ['', 'sorted_']
+        for param, name in zip(params, names):
+            fig = go.Figure()
+            for entry in param:
+                toff = int(entry[0].split('_')[2].split('=')[1])
+                color = colors[toff if toff <= 8 else toff - 8]
+                fig.add_trace(go.Bar(x=[entry[1]], y=[entry[0]], marker_color=color, orientation='h', showlegend=False))
+            fig.update_layout(title=title, xaxis_title='Magnitude', yaxis_title='Parameters', coloraxis_showscale=True)
+            plot_html_path = os.path.join(RESULTS_FOLDER, f'{name}{name_prefix}interactive_plot_{accel_chip}_tmc{driver}_{sense_resistor}_{now}.html')
+            pio.write_html(fig, plot_html_path, auto_open=False)
+            plot_paths.append(plot_html_path)
+        
+        # Check speed consistency for sorted plot
         speed1 = params[1][0][0].split('_')[6].split('=')[1]
         speed2 = params[1][1][0].split('_')[6].split('=')[1]
         if speed1 != speed2:
