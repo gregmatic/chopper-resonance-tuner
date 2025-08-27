@@ -23,7 +23,7 @@ FCLK = 12 # MHz
 CUTOFF_RANGE = 5
 
 def cleaner():
-    os.system('rm -f /tmp/*.csv')
+    #os.system('rm -f /tmp/*.csv')
     sys.exit(0)
 
 def check_export_path(path):
@@ -105,40 +105,44 @@ def main():
     data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.
                         path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=True)
     for name in data_files:
-        if name.endswith('__.csv'):
-            with open(f'{DATA_FOLDER}{name}', 'r') as file:
-                curr, tbl, toff, hstrt, hend, tpfd, speed, freq, iter = name.split('__')[1].split('_')
-                out_name = (f'current={curr}_tbl={tbl}_toff={toff}_hstrt={hstrt}_hend={hend}'
-                            f'_tpfd={tpfd}_speed={float(speed)/100:.2f}_freq={float(freq)/1000:.2f}kHz')
-                try:
-                    # Calculate all four magnitudes
-                    md_magnitude_static = calc_magnitude(file, static_data)
-                    md_magnitude_raw = calc_raw_magnitude(file)
-                    avg_magnitude_static = calc_avg_magnitude(file, static_data)
-                    avg_magnitude_raw = calc_avg_magnitude(file)
-                    datapoint_median_static.append(md_magnitude_static)
-                    datapoint_median_raw.append(md_magnitude_raw)
-                    datapoint_avg_static.append(avg_magnitude_static)
-                    datapoint_avg_raw.append(avg_magnitude_raw)
-                    if int(iter) == iterations:
-                        samples_median_static[out_name] = np.mean(datapoint_median_static, axis=0)
-                        samples_median_raw[out_name] = np.mean(datapoint_median_raw, axis=0)
-                        samples_avg_static[out_name] = np.mean(datapoint_avg_static, axis=0)
-                        samples_avg_raw[out_name] = np.mean(datapoint_avg_raw, axis=0)
-                        datapoint_median_static.clear()
-                        datapoint_median_raw.clear()
-                        datapoint_avg_static.clear()
-                        datapoint_avg_raw.clear()
-                except:
+    if name.endswith('__.csv'):
+        with open(f'{DATA_FOLDER}{name}', 'r') as file:
+            curr, tbl, toff, hstrt, hend, tpfd, speed, freq, iter = name.split('__')[1].split('_')
+            iter = iter.rstrip('.csv')  # Handle .csv suffix
+            out_name = (f'current={curr}_tbl={tbl}_toff={toff}_hstrt={hstrt}_hend={hend}'
+                        f'_tpfd={tpfd}_speed={float(speed)/100:.2f}_freq={float(freq)/1000:.2f}kHz')
+            try:
+                md_magnitude_static = calc_magnitude(file, static_data)
+                file.seek(0)  # Reset file pointer
+                md_magnitude_raw = calc_raw_magnitude(file)
+                file.seek(0)  # Reset file pointer
+                avg_magnitude_static = calc_avg_magnitude(file, static_data)
+                file.seek(0)  # Reset file pointer
+                avg_magnitude_raw = calc_avg_magnitude(file)
+                datapoint_median_static.append(md_magnitude_static)
+                datapoint_median_raw.append(md_magnitude_raw)
+                datapoint_avg_static.append(avg_magnitude_static)
+                datapoint_avg_raw.append(avg_magnitude_raw)
+                if int(iter) == iterations:
+                    samples_median_static[out_name] = np.mean(datapoint_median_static, axis=0)
+                    samples_median_raw[out_name] = np.mean(datapoint_median_raw, axis=0)
+                    samples_avg_static[out_name] = np.mean(datapoint_avg_static, axis=0)
+                    samples_avg_raw[out_name] = np.mean(datapoint_avg_raw, axis=0)
                     datapoint_median_static.clear()
                     datapoint_median_raw.clear()
                     datapoint_avg_static.clear()
                     datapoint_avg_raw.clear()
-                    empty_error += 1
-                    samples_median_static[out_name] = 0
-                    samples_median_raw[out_name] = 0
-                    samples_avg_static[out_name] = 0
-                    samples_avg_raw[out_name] = 0
+            except Exception as e:
+                print(f"Error processing {name}: {e}")
+                datapoint_median_static.clear()
+                datapoint_median_raw.clear()
+                datapoint_avg_static.clear()
+                datapoint_avg_raw.clear()
+                empty_error += 1
+                samples_median_static[out_name] = 0
+                samples_median_raw[out_name] = 0
+                samples_avg_static[out_name] = 0
+                samples_avg_raw[out_name] = 0
 
     # Graphs generation
     colors = ['', '#2F4F4F', '#12B57F', '#9DB512', '#DF8816', '#1297B5', '#5912B5', '#B51284', '#127D0C']
