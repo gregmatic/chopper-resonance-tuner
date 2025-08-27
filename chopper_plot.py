@@ -48,27 +48,19 @@ def calc_static_magnitude(file):
          float(row["accel_z"])] for row in csv.DictReader(file)])
     return np.mean(data, axis=0)
 
-def calc_md_magnitude(file, static_data):
+def calc_md_magnitude(file, static_data=None): #new
     data = np.array([
         [float(row["accel_x"]),
          float(row["accel_y"]),
          float(row["accel_z"])] for row in csv.DictReader(file)]) - static_data
+    if static_data is not None:
+        data = data - static_data    
     trim_size = len(data) // CUTOFF_RANGE
     data = data[trim_size:-trim_size]
     md_magnitude = np.median(np.linalg.norm(data, axis=1))
     return md_magnitude
 
-def calc_raw_md_magnitude(file): #new
-    data = np.array([
-        [float(row["accel_x"]),
-         float(row["accel_y"]),
-         float(row["accel_z"])] for row in csv.DictReader(file)])
-    trim_size = len(data) // CUTOFF_RANGE
-    data = data[trim_size:-trim_size]
-    md_magnitude = np.median(np.linalg.norm(data, axis=1))
-    return md_magnitude
-
-def calc_raw_avg_magnitude(file, static_data=None): #new
+def calc_avg_magnitude(file, static_data=None): #new
     data = np.array([
         [float(row["accel_x"]),
          float(row["accel_y"]),
@@ -93,13 +85,13 @@ def main():
         static_data = calc_static_magnitude(file)
         accel_chip = static_name.split('-')[0]
     # Calc magnitudes (median and average, static and raw)
-    samples_median = {}
+    samples_median_adjusted = {}
     samples_median_raw = {}
-    samples_avg = {}
+    samples_avg_adjusted = {}
     samples_avg_raw = {}
-    datapoint_median = []
+    datapoint_median_adjusted = []
     datapoint_median_raw = []
-    datapoint_avg = []
+    datapoint_avg_adjusted = []
     datapoint_avg_raw = []
     empty_error = 0
     data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.
@@ -119,34 +111,34 @@ def main():
                     empty_error += 1
                     continue
     
-                md_magnitude = md_magnitude_raw = avg_magnitude = avg_magnitude_raw = 0
+                md_magnitude_adjusted = md_magnitude_raw = avg_magnitude_adjusted = avg_magnitude_raw = 0
                 try:
-                    md_magnitude = calc_magnitude(file, static_data)
-                    datapoint_median.append(md_magnitude)
+                    md_magnitude_adjusted = calc_md_magnitude(file, static_data)
+                    datapoint_median_adjusted.append(md_magnitude_adjusted)
                 except Exception as e:
                     print(f"Error in calc_magnitude for {name}: {e}")
-                    datapoint_median.clear()
-                    samples_median[out_name] = 0
+                    datapoint_median_adjusted.clear()
+                    samples_median_adjusted[out_name] = 0
                     empty_error += 1
     
                 try:
                     file.seek(0)
-                    md_magnitude_raw = calc_raw_magnitude(file)
+                    md_magnitude_raw = calc_md_magnitude(file)
                     datapoint_median_raw.append(md_magnitude_raw)
                 except Exception as e:
-                    print(f"Error in calc_raw_magnitude for {name}: {e}")
+                    print(f"Error in calc_md_magnitude for {name}: {e}")
                     datapoint_median_raw.clear()
                     samples_median_raw[out_name] = 0
                     empty_error += 1
     
                 try:
                     file.seek(0)
-                    avg_magnitude = calc_avg_magnitude(file, static_data)
-                    datapoint_avg.append(avg_magnitude)
+                    avg_magnitude_adjusted = calc_avg_magnitude(file, static_data)
+                    datapoint_avg_adjusted.append(avg_magnitude_adjusted)
                 except Exception as e:
-                    print(f"Error in calc_avg_magnitude (static) for {name}: {e}")
-                    datapoint_avg.clear()
-                    samples_avg[out_name] = 0
+                    print(f"Error in calc_avg_magnitude (adjusted) for {name}: {e}")
+                    datapoint_avg_adjusted.clear()
+                    samples_avg_adjusted[out_name] = 0
                     empty_error += 1
     
                 try:
@@ -160,25 +152,25 @@ def main():
                     empty_error += 1
     
                 if int(iter) == iterations:
-                    if datapoint_median:
-                        samples_median[out_name] = np.mean(datapoint_median, axis=0)
+                    if datapoint_median_adjusted:
+                        samples_median_adjusted[out_name] = np.mean(datapoint_median_adjusted, axis=0)
                     if datapoint_median_raw:
                         samples_median_raw[out_name] = np.mean(datapoint_median_raw, axis=0)
-                    if datapoint_avg:
-                        samples_avg[out_name] = np.mean(datapoint_avg, axis=0)
+                    if datapoint_avg_adjusted:
+                        samples_avg_adjusted[out_name] = np.mean(datapoint_avg_adjusted, axis=0)
                     if datapoint_avg_raw:
                         samples_avg_raw[out_name] = np.mean(datapoint_avg_raw, axis=0)
-                    datapoint_median.clear()
+                    datapoint_median_adjusted.clear()
                     datapoint_median_raw.clear()
-                    datapoint_avg.clear()
+                    datapoint_avg_adjusted.clear()
                     datapoint_avg_raw.clear()
 
     # Graphs generation
     colors = ['', '#2F4F4F', '#12B57F', '#9DB512', '#DF8816', '#1297B5', '#5912B5', '#B51284', '#127D0C']
     plot_configs = [
-        (samples_median, 'median', 'Median Magnitude vs Parameters (Static Subtracted)'),
+        (samples_median_adjusted, 'median_adjusted', 'Median Magnitude vs Parameters (Static Subtracted)'),
         (samples_median_raw, 'median_raw', 'Median Magnitude vs Parameters (Raw Data)'),
-        (samples_avg, 'avg', 'Average Magnitude vs Parameters (Static Subtracted)'),
+        (samples_avg_adjusted, 'avg_adjusted', 'Average Magnitude vs Parameters (Static Subtracted)'),
         (samples_avg_raw, 'avg_raw', 'Average Magnitude vs Parameters (Raw Data)')
     ]
     plot_paths = []
