@@ -72,6 +72,23 @@ def calc_avg_magnitude(file, static_data=None): #new
     avg_magnitude = np.mean(np.linalg.norm(data, axis=1))
     return avg_magnitude
 
+def calc_all_magnitudes(file, static_data=None):
+    """
+    Parse accel data, calculate magnitude for each row, 
+    adjust with static_data if provided, and return all magnitudes.
+    """
+    data = np.array([
+        [float(row["accel_x"]),
+         float(row["accel_y"]),
+         float(row["accel_z"])] for row in csv.DictReader(file)])
+    if static_data is not None:
+        data = data - static_data
+    trim_size = len(data) // CUTOFF_RANGE
+    data = data[trim_size:-trim_size]
+    magnitudes = np.linalg.norm(data, axis=1)
+    return magnitudes
+
+
 def main():
     print('Magnitude graphs generation...')
     args = parse_arguments()
@@ -199,7 +216,7 @@ def main():
         speed2 = params[1][1][0].split('_')[6].split('=')[1]
         if speed1 != speed2:
             break
-
+   
     # Export Info
     try:
         print(f'Access to interactive plot at: {"/".join(plot_html_path.split("/")[:-1] + [plot_html_path.split(names[1])[1]])}')
@@ -207,6 +224,60 @@ def main():
         print(f'Access to interactive plot at: {plot_html_path}')
     if empty_error:
         print(f'Warning!!! Empty data cells detected ({empty_error}), make sure you dont run out of memory')
+
+        # --- Boxplot Data Collection ---
+    print("\nCollecting data for boxplot...")
+    boxplot_data = {}
+
+    for index, name in enumerate(csv_files, start=1):  # reuse same csv_files
+        print(f"Processing file {index}/{total_files}: {name}")
+        try:
+            with open(f'{DATA_FOLDER}{name}', 'r') as f:
+                mags = calc_all_magnitudes(f, static_data)  # adjusted magnitudes
+            curr, tbl, toff, hstrt, hend, tpfd, speed, freq, iter = name.split('__')[1].split('_')
+            iter = iter.rstrip('.csv')
+            out_name = (f'current={curr}_tbl={tbl}_toff={toff}_hstrt={hstrt}_hend={hend}'
+                        f'_tpfd={tpfd}_speed={float(speed)/100:.2f}_freq={float(freq)/1000:.2f}kHz')
+            boxplot_data[out_name] = (mags, int(toff))
+        except Exception as e:
+            print(f"Error in calc_all_magnitudes for {name}: {e}")
+            continue
+
+    # --- Plotly horizontal boxplots (unsorted + sorted by average magnitude) ---
+    plot_variants = [
+        ("unsorted_boxplot", list(boxplot_data.items()), "Unsorted Boxplot: Magnitude Distribution"),
+        ("sorted_boxplot", sorted(boxplot_data.items(), key=lambda kv: np.mean(kv[1][0])),
+         "Sorted Boxplot (by Average Magnitude): Magnitude Distribution")
+    ]
+
+    for prefix, items, title in plot_variants:
+        fig = go.Figure()
+        for param, (mags, toff) in items:
+            color = colors[toff if toff <= 8 else toff - 8]
+            fig.add_trace(go.Box(
+                x=mags,                   # magnitudes on X
+                y=[param] * len(mags),    # param set on Y
+                name=param,
+                boxpoints="all",  # show individual points
+                jitter=0.5,
+                pointpos=0,
+                marker_color=color,
+                line_color=color,
+                orientation="h"   # horizontal
+            ))
+
+        fig.update_layout(
+            title=title,
+            xaxis_title="Magnitude",
+            yaxis_title="Parameters",
+            showlegend=False
+        )
+
+        boxplot_path = os.path.join(RESULTS_FOLDER, f'{prefix}_{now}.html')
+        pio.write_html(fig, boxplot_path, auto_open=False)
+        print(f'Boxplot saved to: {boxplot_path}')
+
+
 
 if __name__ == '__main__':
     if sys.argv[1] == 'cleaner':
