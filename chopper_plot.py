@@ -97,8 +97,7 @@ def main():
     data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=True)
     data_files = [name for name in data_files if name.endswith('__.csv')]  # Added: Filter '__.csv' files
     total_files = len(data_files)  # Added: Count only '__.csv' files
-    for index, name in enumerate(data_files, start=1):  # Modified: Use enumerate with index
-        print(f"Processing file {index}/{total_files}: {name}")  # Modified: New print format
+    for index, name in enumerate(data_files, start=1):  # Modified: Use enumerate with index        
         for name in data_files:
             #print(f"Processing file: {name}")
             if name.endswith('__.csv'):
@@ -106,7 +105,8 @@ def main():
                     try:
                         curr, tbl, toff, hstrt, hend, tpfd, speed, freq, iter = name.split('__')[1].split('_')
                         iter = iter.rstrip('.csv')
-                        print(f"Parsed parameters: curr={curr}, tbl={tbl}, toff={toff}, hstrt={hstrt}, hend={hend}, tpfd={tpfd}, speed={speed}, freq={freq}, iter={iter}")
+                        print(f"Processing file {index}/{total_files}: {name}")  # Modified: New print format
+                        #print(f"Parsed parameters: curr={curr}, tbl={tbl}, toff={toff}, hstrt={hstrt}, hend={hend}, tpfd={tpfd}, speed={speed}, freq={freq}, iter={iter}")
                         out_name = (f'current={curr}_tbl={tbl}_toff={toff}_hstrt={hstrt}_hend={hend}'
                                     f'_tpfd={tpfd}_speed={float(speed)/100:.2f}_freq={float(freq)/1000:.2f}kHz')
                     except ValueError as e:
