@@ -168,10 +168,10 @@ def main():
     # Graphs generation
     colors = ['', '#2F4F4F', '#12B57F', '#9DB512', '#DF8816', '#1297B5', '#5912B5', '#B51284', '#127D0C']
     plot_configs = [
-        (samples_median_adjusted, 'median_adj_', 'Median Magnitude vs Parameters (Static Subtracted)'),
-        (samples_median_raw, 'median_raw_', 'Median Magnitude vs Parameters (Raw Data)'),
-        (samples_avg_adjusted, 'avg_adj_', 'Average Magnitude vs Parameters (Static Subtracted)'),
-        (samples_avg_raw, 'avg_raw_', 'Average Magnitude vs Parameters (Raw Data)')
+        (samples_median_adjusted, 'median_adj', 'Median Magnitude vs Parameters (Static Subtracted)'),
+        (samples_median_raw, 'median_raw', 'Median Magnitude vs Parameters (Raw Data)'),
+        (samples_avg_adjusted, 'avg_adj', 'Average Magnitude vs Parameters (Static Subtracted)'),
+        (samples_avg_raw, 'avg_raw', 'Average Magnitude vs Parameters (Raw Data)')
     ]
     plot_paths = []
     
