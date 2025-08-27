@@ -41,7 +41,7 @@ def parse_arguments():
         parsed_args[name] = int(value) if value.isdigit() else value
     return parsed_args
 
-def calc_static_magnitude(file):
+def calc_magnitude(file):
     data = np.array([
         [float(row["accel_x"]),
          float(row["accel_y"]),
@@ -90,16 +90,16 @@ def main():
     # Calc static magnitude
     static_name = next((name for name in os.listdir(DATA_FOLDER) if name.endswith('stand_still.csv')), None)
     with open(f'{DATA_FOLDER}{static_name}', 'r') as file:
-        static_data = calc_static_magnitude(file)
+        static_data = calc_magnitude(file)
         accel_chip = static_name.split('-')[0]
     # Calc magnitudes (median and average, static and raw)
-    samples_median_static = {}
+    samples_median = {}
     samples_median_raw = {}
-    samples_avg_static = {}
+    samples_avg = {}
     samples_avg_raw = {}
-    datapoint_median_static = []
+    datapoint_median = []
     datapoint_median_raw = []
-    datapoint_avg_static = []
+    datapoint_avg = []
     datapoint_avg_raw = []
     empty_error = 0
     data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.
@@ -119,14 +119,14 @@ def main():
                     empty_error += 1
                     continue
     
-                md_magnitude_static = md_magnitude_raw = avg_magnitude_static = avg_magnitude_raw = 0
+                md_magnitude = md_magnitude_raw = avg_magnitude = avg_magnitude_raw = 0
                 try:
-                    md_magnitude_static = calc_magnitude(file, static_data)
-                    datapoint_median_static.append(md_magnitude_static)
+                    md_magnitude = calc_magnitude(file, static_data)
+                    datapoint_median.append(md_magnitude)
                 except Exception as e:
                     print(f"Error in calc_magnitude for {name}: {e}")
-                    datapoint_median_static.clear()
-                    samples_median_static[out_name] = 0
+                    datapoint_median.clear()
+                    samples_median[out_name] = 0
                     empty_error += 1
     
                 try:
@@ -141,12 +141,12 @@ def main():
     
                 try:
                     file.seek(0)
-                    avg_magnitude_static = calc_avg_magnitude(file, static_data)
-                    datapoint_avg_static.append(avg_magnitude_static)
+                    avg_magnitude = calc_avg_magnitude(file, static_data)
+                    datapoint_avg.append(avg_magnitude)
                 except Exception as e:
                     print(f"Error in calc_avg_magnitude (static) for {name}: {e}")
-                    datapoint_avg_static.clear()
-                    samples_avg_static[out_name] = 0
+                    datapoint_avg.clear()
+                    samples_avg[out_name] = 0
                     empty_error += 1
     
                 try:
@@ -160,25 +160,25 @@ def main():
                     empty_error += 1
     
                 if int(iter) == iterations:
-                    if datapoint_median_static:
-                        samples_median_static[out_name] = np.mean(datapoint_median_static, axis=0)
+                    if datapoint_median:
+                        samples_median[out_name] = np.mean(datapoint_median, axis=0)
                     if datapoint_median_raw:
                         samples_median_raw[out_name] = np.mean(datapoint_median_raw, axis=0)
-                    if datapoint_avg_static:
-                        samples_avg_static[out_name] = np.mean(datapoint_avg_static, axis=0)
+                    if datapoint_avg:
+                        samples_avg[out_name] = np.mean(datapoint_avg, axis=0)
                     if datapoint_avg_raw:
                         samples_avg_raw[out_name] = np.mean(datapoint_avg_raw, axis=0)
-                    datapoint_median_static.clear()
+                    datapoint_median.clear()
                     datapoint_median_raw.clear()
-                    datapoint_avg_static.clear()
+                    datapoint_avg.clear()
                     datapoint_avg_raw.clear()
 
     # Graphs generation
     colors = ['', '#2F4F4F', '#12B57F', '#9DB512', '#DF8816', '#1297B5', '#5912B5', '#B51284', '#127D0C']
     plot_configs = [
-        (samples_median_static, 'median_static_', 'Median Magnitude vs Parameters (Static Subtracted)'),
+        (samples_median, 'median', 'Median Magnitude vs Parameters (Static Subtracted)'),
         (samples_median_raw, 'median_raw_', 'Median Magnitude vs Parameters (Raw Data)'),
-        (samples_avg_static, 'avg_static_', 'Average Magnitude vs Parameters (Static Subtracted)'),
+        (samples_avg, 'avg', 'Average Magnitude vs Parameters (Static Subtracted)'),
         (samples_avg_raw, 'avg_raw_', 'Average Magnitude vs Parameters (Raw Data)')
     ]
     plot_paths = []
