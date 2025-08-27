@@ -52,7 +52,7 @@ def calc_md_magnitude(file, static_data=None): #new
     data = np.array([
         [float(row["accel_x"]),
          float(row["accel_y"]),
-         float(row["accel_z"])] for row in csv.DictReader(file)]) - static_data
+         float(row["accel_z"])] for row in csv.DictReader(file)])
     if static_data is not None:
         data = data - static_data    
     trim_size = len(data) // CUTOFF_RANGE
