@@ -94,76 +94,79 @@ def main():
     datapoint_avg_adjusted = []
     datapoint_avg_raw = []
     empty_error = 0
-    data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.
-                        path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=True)
-    for name in data_files:
-        print(f"Processing file: {name}")
-        if name.endswith('__.csv'):
-            with open(f'{DATA_FOLDER}{name}', 'r') as file:
-                try:
-                    curr, tbl, toff, hstrt, hend, tpfd, speed, freq, iter = name.split('__')[1].split('_')
-                    iter = iter.rstrip('.csv')
-                    print(f"Parsed parameters: curr={curr}, tbl={tbl}, toff={toff}, hstrt={hstrt}, hend={hend}, tpfd={tpfd}, speed={speed}, freq={freq}, iter={iter}")
-                    out_name = (f'current={curr}_tbl={tbl}_toff={toff}_hstrt={hstrt}_hend={hend}'
-                                f'_tpfd={tpfd}_speed={float(speed)/100:.2f}_freq={float(freq)/1000:.2f}kHz')
-                except ValueError as e:
-                    print(f"Error parsing file name {name}: {e}")
-                    empty_error += 1
-                    continue
-    
-                md_magnitude_adjusted = md_magnitude_raw = avg_magnitude_adjusted = avg_magnitude_raw = 0
-                try:
-                    md_magnitude_adjusted = calc_md_magnitude(file, static_data)
-                    datapoint_median_adjusted.append(md_magnitude_adjusted)
-                except Exception as e:
-                    print(f"Error in calc_magnitude for {name}: {e}")
-                    datapoint_median_adjusted.clear()
-                    samples_median_adjusted[out_name] = 0
-                    empty_error += 1
-    
-                try:
-                    file.seek(0)
-                    md_magnitude_raw = calc_md_magnitude(file)
-                    datapoint_median_raw.append(md_magnitude_raw)
-                except Exception as e:
-                    print(f"Error in calc_md_magnitude for {name}: {e}")
-                    datapoint_median_raw.clear()
-                    samples_median_raw[out_name] = 0
-                    empty_error += 1
-    
-                try:
-                    file.seek(0)
-                    avg_magnitude_adjusted = calc_avg_magnitude(file, static_data)
-                    datapoint_avg_adjusted.append(avg_magnitude_adjusted)
-                except Exception as e:
-                    print(f"Error in calc_avg_magnitude (adjusted) for {name}: {e}")
-                    datapoint_avg_adjusted.clear()
-                    samples_avg_adjusted[out_name] = 0
-                    empty_error += 1
-    
-                try:
-                    file.seek(0)
-                    avg_magnitude_raw = calc_avg_magnitude(file)
-                    datapoint_avg_raw.append(avg_magnitude_raw)
-                except Exception as e:
-                    print(f"Error in calc_avg_magnitude (raw) for {name}: {e}")
-                    datapoint_avg_raw.clear()
-                    samples_avg_raw[out_name] = 0
-                    empty_error += 1
-    
-                if int(iter) == iterations:
-                    if datapoint_median_adjusted:
-                        samples_median_adjusted[out_name] = np.mean(datapoint_median_adjusted, axis=0)
-                    if datapoint_median_raw:
-                        samples_median_raw[out_name] = np.mean(datapoint_median_raw, axis=0)
-                    if datapoint_avg_adjusted:
-                        samples_avg_adjusted[out_name] = np.mean(datapoint_avg_adjusted, axis=0)
-                    if datapoint_avg_raw:
-                        samples_avg_raw[out_name] = np.mean(datapoint_avg_raw, axis=0)
-                    datapoint_median_adjusted.clear()
-                    datapoint_median_raw.clear()
-                    datapoint_avg_adjusted.clear()
-                    datapoint_avg_raw.clear()
+    data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=True)
+    data_files = [name for name in data_files if name.endswith('__.csv')]  # Added: Filter '__.csv' files
+    total_files = len(data_files)  # Added: Count only '__.csv' files
+    for index, name in enumerate(data_files, start=1):  # Modified: Use enumerate with index
+        print(f"Processing file {index}/{total_files}: {name}")  # Modified: New print format
+        for name in data_files:
+            #print(f"Processing file: {name}")
+            if name.endswith('__.csv'):
+                with open(f'{DATA_FOLDER}{name}', 'r') as file:
+                    try:
+                        curr, tbl, toff, hstrt, hend, tpfd, speed, freq, iter = name.split('__')[1].split('_')
+                        iter = iter.rstrip('.csv')
+                        print(f"Parsed parameters: curr={curr}, tbl={tbl}, toff={toff}, hstrt={hstrt}, hend={hend}, tpfd={tpfd}, speed={speed}, freq={freq}, iter={iter}")
+                        out_name = (f'current={curr}_tbl={tbl}_toff={toff}_hstrt={hstrt}_hend={hend}'
+                                    f'_tpfd={tpfd}_speed={float(speed)/100:.2f}_freq={float(freq)/1000:.2f}kHz')
+                    except ValueError as e:
+                        print(f"Error parsing file name {name}: {e}")
+                        empty_error += 1
+                        continue
+        
+                    md_magnitude_adjusted = md_magnitude_raw = avg_magnitude_adjusted = avg_magnitude_raw = 0
+                    try:
+                        md_magnitude_adjusted = calc_md_magnitude(file, static_data)
+                        datapoint_median_adjusted.append(md_magnitude_adjusted)
+                    except Exception as e:
+                        print(f"Error in calc_magnitude for {name}: {e}")
+                        datapoint_median_adjusted.clear()
+                        samples_median_adjusted[out_name] = 0
+                        empty_error += 1
+        
+                    try:
+                        file.seek(0)
+                        md_magnitude_raw = calc_md_magnitude(file)
+                        datapoint_median_raw.append(md_magnitude_raw)
+                    except Exception as e:
+                        print(f"Error in calc_md_magnitude for {name}: {e}")
+                        datapoint_median_raw.clear()
+                        samples_median_raw[out_name] = 0
+                        empty_error += 1
+        
+                    try:
+                        file.seek(0)
+                        avg_magnitude_adjusted = calc_avg_magnitude(file, static_data)
+                        datapoint_avg_adjusted.append(avg_magnitude_adjusted)
+                    except Exception as e:
+                        print(f"Error in calc_avg_magnitude (adjusted) for {name}: {e}")
+                        datapoint_avg_adjusted.clear()
+                        samples_avg_adjusted[out_name] = 0
+                        empty_error += 1
+        
+                    try:
+                        file.seek(0)
+                        avg_magnitude_raw = calc_avg_magnitude(file)
+                        datapoint_avg_raw.append(avg_magnitude_raw)
+                    except Exception as e:
+                        print(f"Error in calc_avg_magnitude (raw) for {name}: {e}")
+                        datapoint_avg_raw.clear()
+                        samples_avg_raw[out_name] = 0
+                        empty_error += 1
+        
+                    if int(iter) == iterations:
+                        if datapoint_median_adjusted:
+                            samples_median_adjusted[out_name] = np.mean(datapoint_median_adjusted, axis=0)
+                        if datapoint_median_raw:
+                            samples_median_raw[out_name] = np.mean(datapoint_median_raw, axis=0)
+                        if datapoint_avg_adjusted:
+                            samples_avg_adjusted[out_name] = np.mean(datapoint_avg_adjusted, axis=0)
+                        if datapoint_avg_raw:
+                            samples_avg_raw[out_name] = np.mean(datapoint_avg_raw, axis=0)
+                        datapoint_median_adjusted.clear()
+                        datapoint_median_raw.clear()
+                        datapoint_avg_adjusted.clear()
+                        datapoint_avg_raw.clear()
 
     # Graphs generation
     colors = ['', '#2F4F4F', '#12B57F', '#9DB512', '#DF8816', '#1297B5', '#5912B5', '#B51284', '#127D0C']
