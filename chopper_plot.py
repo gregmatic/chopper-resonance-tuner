@@ -23,7 +23,7 @@ FCLK = 12 # MHz
 CUTOFF_RANGE = 5
 
 def cleaner():
-    os.system('rm -f /tmp/*.csv')
+    #os.system('rm -f /tmp/*.csv')
     sys.exit(0)
 
 def check_export_path(path):
