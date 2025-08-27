@@ -41,14 +41,14 @@ def parse_arguments():
         parsed_args[name] = int(value) if value.isdigit() else value
     return parsed_args
 
-def calc_magnitude(file):
+def calc_static_magnitude(file):
     data = np.array([
         [float(row["accel_x"]),
          float(row["accel_y"]),
          float(row["accel_z"])] for row in csv.DictReader(file)])
     return np.mean(data, axis=0)
 
-def calc_magnitude(file, static_data):
+def calc_md_magnitude(file, static_data):
     data = np.array([
         [float(row["accel_x"]),
          float(row["accel_y"]),
@@ -58,7 +58,7 @@ def calc_magnitude(file, static_data):
     md_magnitude = np.median(np.linalg.norm(data, axis=1))
     return md_magnitude
 
-def calc_raw_magnitude(file): #new
+def calc_raw_md_magnitude(file): #new
     data = np.array([
         [float(row["accel_x"]),
          float(row["accel_y"]),
@@ -68,7 +68,7 @@ def calc_raw_magnitude(file): #new
     md_magnitude = np.median(np.linalg.norm(data, axis=1))
     return md_magnitude
 
-def calc_avg_magnitude(file, static_data=None): #new
+def calc_raw_avg_magnitude(file, static_data=None): #new
     data = np.array([
         [float(row["accel_x"]),
          float(row["accel_y"]),
@@ -90,7 +90,7 @@ def main():
     # Calc static magnitude
     static_name = next((name for name in os.listdir(DATA_FOLDER) if name.endswith('stand_still.csv')), None)
     with open(f'{DATA_FOLDER}{static_name}', 'r') as file:
-        static_data = calc_magnitude(file)
+        static_data = calc_static_magnitude(file)
         accel_chip = static_name.split('-')[0]
     # Calc magnitudes (median and average, static and raw)
     samples_median = {}
@@ -177,9 +177,9 @@ def main():
     colors = ['', '#2F4F4F', '#12B57F', '#9DB512', '#DF8816', '#1297B5', '#5912B5', '#B51284', '#127D0C']
     plot_configs = [
         (samples_median, 'median', 'Median Magnitude vs Parameters (Static Subtracted)'),
-        (samples_median_raw, 'median_raw_', 'Median Magnitude vs Parameters (Raw Data)'),
+        (samples_median_raw, 'median_raw', 'Median Magnitude vs Parameters (Raw Data)'),
         (samples_avg, 'avg', 'Average Magnitude vs Parameters (Static Subtracted)'),
-        (samples_avg_raw, 'avg_raw_', 'Average Magnitude vs Parameters (Raw Data)')
+        (samples_avg_raw, 'avg_raw', 'Average Magnitude vs Parameters (Raw Data)')
     ]
     plot_paths = []
     
