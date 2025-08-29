@@ -174,13 +174,17 @@ def main():
 
             if int(iter) == iterations:
                 if datapoint_median_adjusted:
-                    samples_median_adjusted[f"{out_name}_{iter}"] = datapoint_median_adjusted[:]
+                        samples_median_adjusted[out_name] = datapoint_median_adjusted[:]
                 if datapoint_median_raw:
-                    samples_median_raw[f"{out_name}_{iter}"] = datapoint_median_raw[:]
+                    samples_median_raw[out_name] = datapoint_median_raw[:]
                 if datapoint_avg_adjusted:
-                    samples_avg_adjusted[f"{out_name}_{iter}"] = datapoint_avg_adjusted[:]
+                    samples_avg_adjusted[out_name] = datapoint_avg_adjusted[:]
                 if datapoint_avg_raw:
-                    samples_avg_raw[f"{out_name}_{iter}"] = datapoint_avg_raw[:]
+                    samples_avg_raw[out_name] = datapoint_avg_raw[:]
+                datapoint_median_adjusted.clear()
+                datapoint_median_raw.clear()
+                datapoint_avg_adjusted.clear()
+                datapoint_avg_raw.clear()
                 
                 '''
                 if datapoint_median_adjusted:
