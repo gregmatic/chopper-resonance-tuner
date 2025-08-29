@@ -263,7 +263,7 @@ def main():
                 pointpos=0,
                 marker_color=color,
                 line_color=color,
-                orientation="h"   # horizontal
+                orientation="h",   # horizontal
                 boxmean=True
             ))
 
