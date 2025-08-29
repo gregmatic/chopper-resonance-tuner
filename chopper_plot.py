@@ -23,7 +23,7 @@ FCLK = 12 # MHz
 CUTOFF_RANGE = 5
 
 def cleaner():
-    #os.system('rm -f /tmp/*.csv')
+    os.system('rm -f /tmp/*.csv')
     sys.exit(0)
 
 def check_export_path(path):
@@ -174,6 +174,16 @@ def main():
 
             if int(iter) == iterations:
                 if datapoint_median_adjusted:
+                    samples_median_adjusted[f"{out_name}_{iter}"] = datapoint_median_adjusted[:]
+                if datapoint_median_raw:
+                    samples_median_raw[f"{out_name}_{iter}"] = datapoint_median_raw[:]
+                if datapoint_avg_adjusted:
+                    samples_avg_adjusted[f"{out_name}_{iter}"] = datapoint_avg_adjusted[:]
+                if datapoint_avg_raw:
+                    samples_avg_raw[f"{out_name}_{iter}"] = datapoint_avg_raw[:]
+                
+                '''
+                if datapoint_median_adjusted:
                     samples_median_adjusted[out_name] = np.mean(datapoint_median_adjusted, axis=0)
                 if datapoint_median_raw:
                     samples_median_raw[out_name] = np.mean(datapoint_median_raw, axis=0)
@@ -185,7 +195,7 @@ def main():
                 datapoint_median_raw.clear()
                 datapoint_avg_adjusted.clear()
                 datapoint_avg_raw.clear()
-
+                '''
     # Graphs generation
     colors = ['', '#2F4F4F', '#12B57F', '#9DB512', '#DF8816', '#1297B5', '#5912B5', '#B51284', '#127D0C']
     plot_configs = [
