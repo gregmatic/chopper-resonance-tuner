@@ -266,8 +266,8 @@ def main():
         ("sorted_boxplot", sorted(boxplot_data.items(), key=lambda kv: np.mean(kv[1][0])),
          "Sorted Boxplot (by Average Magnitude): Magnitude Distribution")
     ]
-
-    for prefix, items, title in plot_variants,i:
+    boxplot_csv_output=false
+    for prefix, items, title in plot_variants:
         fig = go.Figure()
         for param, (mags, toff) in items:
             color = colors[toff if toff <= 8 else toff - 8]
@@ -296,7 +296,7 @@ def main():
         print(f'Boxplot saved to: {boxplot_path}')
         
         # Save boxplot data as CSV
-        if i == 0:
+        if not boxplot_csv_output:
             boxplot_data_path = os.path.join(RESULTS_FOLDER, f'{prefix}_data_{now}.csv')
             csv_df = pd.DataFrame([
                 {'Parameter': param, 'Magnitude': mag}
@@ -304,8 +304,9 @@ def main():
                 for mag in mags
             ])
             csv_df.to_csv(boxplot_data_path, index=False)
+            boxplot_csv_output=true
             print(f'Boxplot data saved to: {boxplot_data_path}')
-
+            
 
 if __name__ == '__main__':
     if sys.argv[1] == 'cleaner':
