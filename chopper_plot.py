@@ -17,6 +17,7 @@ from tqdm import tqdm
 import plotly.graph_objects as go
 import plotly.io as pio
 from datetime import datetime
+import pandas as pd
 
 RESULTS_FOLDER = os.path.expanduser(RESULTS_FOLDER)
 FCLK = 12 # MHz
