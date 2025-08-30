@@ -265,7 +265,7 @@ def main():
 
     # --- Plotly horizontal boxplots (unsorted + sorted by average magnitude) ---
     plot_variants = [
-        ("unsorted_boxplot", list(boxplot_data.items()), "Unsorted Boxplot: Magnitude Distribution"),
+        ("unsorted_boxplot", reversed(list(boxplot_data.items())), "Unsorted Boxplot: Magnitude Distribution"),
         ("sorted_boxplot", sorted(boxplot_data.items(), key=lambda kv: np.mean(kv[1][0])),
          "Sorted Boxplot (by Average Magnitude): Magnitude Distribution")
     ]
