@@ -240,10 +240,6 @@ def main():
     if empty_error:
         print(f'Warning!!! Empty data cells detected ({empty_error}), make sure you dont run out of memory')
 
-        # --- Boxplot Data Collection ---
-    print("\nCollecting data for boxplot...")
-    boxplot_data = {}
-
     # --- Boxplot Data Collection ---
     print("\nCollecting data for boxplot...")
     boxplot_data = {}
@@ -266,7 +262,7 @@ def main():
 
     # --- Plotly horizontal boxplots (unsorted + sorted by average magnitude) ---
     plot_variants = [
-        ("unsorted_boxplot", reversed(list(boxplot_data.items())), "Unsorted Boxplot: Magnitude Distribution"),
+        ("unsorted_boxplot", list(reversed(list(boxplot_data.items()))), "Unsorted Boxplot: Magnitude Distribution"), #after reversing, needs to be converted to list again to avoid iterator exhaustion
         ("sorted_boxplot", sorted(boxplot_data.items(), key=lambda kv: np.mean(kv[1][0])),
          "Sorted Boxplot (by Average Magnitude): Magnitude Distribution")
     ]
