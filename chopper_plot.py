@@ -296,14 +296,15 @@ def main():
         print(f'Boxplot saved to: {boxplot_path}')
         
         # Save boxplot data as CSV
-        boxplot_data_path = os.path.join(RESULTS_FOLDER, f'{prefix}_data_{now}.csv')
-        csv_df = pd.DataFrame([
-            {'Parameter': param, 'Magnitude': mag}
-            for param, (mags, toff) in items
-            for mag in mags
-        ])
-        csv_df.to_csv(boxplot_data_path, index=False)
-        print(f'Boxplot data saved to: {boxplot_data_path}')
+        if plot_variants == "unsorted_boxplot":
+            boxplot_data_path = os.path.join(RESULTS_FOLDER, f'{prefix}_data_{now}.csv')
+            csv_df = pd.DataFrame([
+                {'Parameter': param, 'Magnitude': mag}
+                for param, (mags, toff) in items
+                for mag in mags
+            ])
+            csv_df.to_csv(boxplot_data_path, index=False)
+            print(f'Boxplot data saved to: {boxplot_data_path}')
 
 
 if __name__ == '__main__':
