@@ -266,7 +266,7 @@ def main():
         ("sorted_boxplot", sorted(boxplot_data.items(), key=lambda kv: np.mean(kv[1][0])),
          "Sorted Boxplot (by Average Magnitude): Magnitude Distribution")
     ]
-    boxplot_csv_output=false
+    boxplot_csv_output=False
     for prefix, items, title in plot_variants:
         fig = go.Figure()
         for param, (mags, toff) in items:
