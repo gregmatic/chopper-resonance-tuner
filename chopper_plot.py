@@ -111,7 +111,7 @@ def main():
     datapoint_avg_adjusted = []
     datapoint_avg_raw = []
     empty_error = 0
-    data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=True)
+    data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=False)
     # Filter for '__.csv' files
     csv_files = [name for name in data_files if name.endswith('__.csv')]
     total_files = len(csv_files)  # Count only '__.csv' files
@@ -174,13 +174,13 @@ def main():
 
             if int(iter) == iterations:
                 if datapoint_median_adjusted:
-                        samples_median_adjusted[out_name] = datapoint_median_adjusted[:]
+                    samples_median_adjusted[out_name] = np.median(datapoint_median_adjusted)
                 if datapoint_median_raw:
-                    samples_median_raw[out_name] = datapoint_median_raw[:]
+                    samples_median_raw[out_name] = np.median(datapoint_median_raw)
                 if datapoint_avg_adjusted:
-                    samples_avg_adjusted[out_name] = datapoint_avg_adjusted[:]
+                    samples_avg_adjusted[out_name] = np.mean(datapoint_avg_adjusted)
                 if datapoint_avg_raw:
-                    samples_avg_raw[out_name] = datapoint_avg_raw[:]
+                    samples_avg_raw[out_name] = np.mean(datapoint_avg_raw)
                 datapoint_median_adjusted.clear()
                 datapoint_median_raw.clear()
                 datapoint_avg_adjusted.clear()
@@ -243,7 +243,11 @@ def main():
     print("\nCollecting data for boxplot...")
     boxplot_data = {}
 
-    for index, name in enumerate(csv_files, start=1):  # reuse same csv_files
+    # --- Boxplot Data Collection ---
+    print("\nCollecting data for boxplot...")
+    boxplot_data = {}
+    
+    for index, name in enumerate(csv_files, start=1):
         print(f"Processing file {index}/{total_files}: {name}")
         try:
             with open(f'{DATA_FOLDER}{name}', 'r') as f:
@@ -252,7 +256,9 @@ def main():
             iter = iter.rstrip('.csv')
             out_name = (f'current={curr}_tbl={tbl}_toff={toff}_hstrt={hstrt}_hend={hend}'
                         f'_tpfd={tpfd}_speed={float(speed)/100:.2f}_freq={float(freq)/1000:.2f}kHz')
-            boxplot_data[out_name] = (mags, int(toff))
+            if out_name not in boxplot_data:
+                boxplot_data[out_name] = ([], int(toff))
+            boxplot_data[out_name][0].extend(mags)  # Concatenate magnitudes from all iterations
         except Exception as e:
             print(f"Error in calc_all_magnitudes for {name}: {e}")
             continue
