@@ -297,7 +297,16 @@ def main():
         boxplot_path = os.path.join(RESULTS_FOLDER, f'{prefix}_{now}.html')
         pio.write_html(fig, boxplot_path, auto_open=False)
         print(f'Boxplot saved to: {boxplot_path}')
-
+        
+        # Save boxplot data as CSV
+        boxplot_data_path = os.path.join(RESULTS_FOLDER, f'{prefix}_data_{now}.csv')
+        csv_df = pd.DataFrame([
+            {'Parameter': param, 'Magnitude': mag}
+            for param, (mags, toff) in items
+            for mag in mags
+        ])
+        csv_df.to_csv(csv_path, index=False)
+        print(f'Boxplot data saved to: {boxplot_data_path}')
 
 
 if __name__ == '__main__':
