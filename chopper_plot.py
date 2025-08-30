@@ -212,7 +212,7 @@ def main():
     plot_paths = []
     
     for samples, name_prefix, title in plot_configs:
-        params = [reversed(list(samples.items())), sorted(samples.items(), key=lambda x: x[1])]
+        params = [list(samples.items()), sorted(samples.items(), key=lambda x: x[1])]
         names = ['', 'sorted_']
         for param, name in zip(params, names):
             fig = go.Figure()
