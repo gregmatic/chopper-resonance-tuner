@@ -112,7 +112,7 @@ def main():
     datapoint_avg_adjusted = []
     datapoint_avg_raw = []
     empty_error = 0
-    data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=True)
+    data_files = sorted(os.listdir(DATA_FOLDER), key=lambda x: os.path.getmtime(os.path.join(DATA_FOLDER, x)), reverse=False)
     # Filter for '__.csv' files
     csv_files = [name for name in data_files if name.endswith('__.csv')]
     total_files = len(csv_files)  # Count only '__.csv' files
