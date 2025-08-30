@@ -306,7 +306,7 @@ def main():
             for param, (mags, toff) in items
             for mag in mags
         ])
-        csv_df.to_csv(csv_path, index=False)
+        csv_df.to_csv(boxplot_data_path, index=False)
         print(f'Boxplot data saved to: {boxplot_data_path}')
 
 
