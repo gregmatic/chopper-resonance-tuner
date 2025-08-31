@@ -209,7 +209,7 @@ def main():
                     x=mags,
                     y=[param] * len(mags),
                     name=param,
-                    boxpoints="False", # "all" to show all, but too CPU intensive for visualization
+                    boxpoints=False, # "all" to show all, but too CPU intensive for visualization
                     jitter=0.5,
                     pointpos=0,
                     marker_color=color,
