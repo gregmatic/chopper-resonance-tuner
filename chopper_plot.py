@@ -155,17 +155,17 @@ def main():
                 md_adj = calc_md_magnitude(file, static_data)
                 datapoint_median_adjusted.append(md_adj)
 
-                file.seek(0)
-                md_raw = calc_md_magnitude(file)
-                datapoint_median_raw.append(md_raw)
+                #file.seek(0)
+                #md_raw = calc_md_magnitude(file)
+                #datapoint_median_raw.append(md_raw)
 
                 file.seek(0)
                 avg_adj = calc_avg_magnitude(file, static_data)
                 datapoint_avg_adjusted.append(avg_adj)
 
-                file.seek(0)
-                avg_raw = calc_avg_magnitude(file)
-                datapoint_avg_raw.append(avg_raw)
+                #file.seek(0)
+                #avg_raw = calc_avg_magnitude(file)
+                #datapoint_avg_raw.append(avg_raw)
 
                 # Boxplot magnitudes
                 file.seek(0)
@@ -182,12 +182,12 @@ def main():
         # --- Aggregate results for main plots. Flush to lists. ---
         if datapoint_median_adjusted:
             samples_median_adjusted[out_name] = np.median(datapoint_median_adjusted)
-        if datapoint_median_raw:
-            samples_median_raw[out_name] = np.median(datapoint_median_raw)
+        #if datapoint_median_raw:
+        #    samples_median_raw[out_name] = np.median(datapoint_median_raw)
         if datapoint_avg_adjusted:
             samples_avg_adjusted[out_name] = np.mean(datapoint_avg_adjusted)
-        if datapoint_avg_raw:
-            samples_avg_raw[out_name] = np.mean(datapoint_avg_raw)
+        #if datapoint_avg_raw:
+        #    samples_avg_raw[out_name] = np.mean(datapoint_avg_raw)
 
 
 
@@ -247,9 +247,9 @@ def main():
     
     plot_configs = [
         (samples_median_adjusted, "median_adj", "Median Magnitude vs Parameters"),
-        (samples_median_raw, "median_raw", "Median Magnitude vs Parameters (Raw Data incl gravity)"),
+        #(samples_median_raw, "median_raw", "Median Magnitude vs Parameters (Raw Data incl gravity)"),
         (samples_avg_adjusted, "avg_adj", "Average Magnitude vs Parameters (Static Subtracted)"),
-        (samples_avg_raw, "avg_raw", "Average Magnitude vs Parameters (Raw Data inc gravity)"),
+        #(samples_avg_raw, "avg_raw", "Average Magnitude vs Parameters (Raw Data inc gravity)"),
     ]
     
     for samples, name_prefix, base_title in plot_configs:
