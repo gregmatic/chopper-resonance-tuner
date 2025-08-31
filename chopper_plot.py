@@ -209,7 +209,7 @@ def main():
                     x=mags,
                     y=[param] * len(mags),
                     name=param,
-                    boxpoints="all",
+                    boxpoints="False", # "all" to show all, but too CPU intensive for visualization
                     jitter=0.5,
                     pointpos=0,
                     marker_color=color,
@@ -255,7 +255,7 @@ def main():
     for samples, name_prefix, base_title in plot_configs:
         params_list = [list(samples.items()), sorted(samples.items(), key=lambda x: x[1])]
         names = ["unsorted_", "sorted_"]
-        title = f"{base_title} (Iterations = {iterations}, approx {num_points/len(items)/iterations} points per trace)"
+        title = f"{base_title} (Iterations = {iterations}, approx {round(num_points/len(items)/iterations)} points per trace)"
         for param, name in zip(params_list, names):
             fig = go.Figure()
             for entry in param:
