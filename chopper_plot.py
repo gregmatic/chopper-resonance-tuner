@@ -200,7 +200,7 @@ def main():
     boxplot_csv_output = False
     for prefix, items, base_title in boxplot_config:
         num_points = sum(len(mags) for _, (mags, _) in boxplot_data.items())
-        title = f"{base_title} (Iterations = {iterations}, approx {num_points/len(items)/iterations} points per trace)"
+        title = f"{base_title} (Iterations = {iterations}, approx {round(num_points/len(items)/iterations)} points per trace)"
         fig = go.Figure()
         for param, (mags, toff) in items:
             color = colors[toff if toff <= 8 else toff - 8]
