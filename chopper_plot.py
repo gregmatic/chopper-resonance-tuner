@@ -4,7 +4,7 @@
 # Copyright (C) 2024  Alexander Fedorov <altzbox@gmail.com>
 # Copyright (C) 2024  Maksim Bolgov <maksim8024@gmail.com>
 #
-# This file may be distributed under the terms of the GNU GPLv3 license.
+# This file may be distributed under the terms of the GNU GPLv3 license. a
 
 #################################################################################################################
 RESULTS_FOLDER = '~/printer_data/config/adxl_results/chopper_magnitude'
