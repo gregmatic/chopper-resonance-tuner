@@ -195,7 +195,7 @@ def main():
     colors = ["", "#2F4F4F", "#12B57F", "#9DB512", "#DF8816", "#1297B5", "#5912B5", "#B51284", "#127D0C"]
     boxplot_config = [
         ("unsorted_boxplot", list(boxplot_data.items()), "Unsorted Boxplot: Magnitude Distribution"),
-        ("sorted_boxplot", sorted(boxplot_data.items(), key=lambda kv: np.mean(kv[1][0])), "Sorted Boxplot (by Average Magnitude)"),
+        ("sorted_boxplot", sorted(boxplot_data.items(), key=lambda kv: np.median(kv[1][0])), "Sorted Boxplot (by Median Magnitude)"),
     ]
     boxplot_csv_output = False
     for prefix, items, base_title in boxplot_config:
