@@ -57,7 +57,7 @@ def calc_md_magnitude(file, static_data=None): #new
     if static_data is not None:
         data = data - static_data    
     trim_size = len(data) // CUTOFF_RANGE
-    #data = data[trim_size:-trim_size]
+    data = data[trim_size:-trim_size]
     md_magnitude = np.median(np.linalg.norm(data, axis=1))
     return md_magnitude
 
@@ -69,7 +69,7 @@ def calc_avg_magnitude(file, static_data=None): #new
     if static_data is not None:
         data = data - static_data
     trim_size = len(data) // CUTOFF_RANGE
-    #data = data[trim_size:-trim_size]
+    data = data[trim_size:-trim_size]
     avg_magnitude = np.mean(np.linalg.norm(data, axis=1))
     return avg_magnitude
 
@@ -85,7 +85,7 @@ def calc_all_magnitudes(file, static_data=None):
     if static_data is not None:
         data = data - static_data
     trim_size = len(data) // CUTOFF_RANGE
-    #data = data[trim_size:-trim_size]
+    data = data[trim_size:-trim_size]
     magnitudes = np.linalg.norm(data, axis=1)
     return magnitudes
     
