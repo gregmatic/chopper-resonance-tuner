@@ -21,7 +21,7 @@ import pandas as pd
 
 RESULTS_FOLDER = os.path.expanduser(RESULTS_FOLDER)
 FCLK = 12 # MHz
-CUTOFF_RANGE = 5
+CUTOFF_RANGE = 4
 
 def cleaner():
     os.system('rm -f /tmp/*.csv')
